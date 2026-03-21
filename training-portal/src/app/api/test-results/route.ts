@@ -3,7 +3,6 @@ import { getSession } from "@/lib/auth/session";
 import { getTestResultsForUser, upsertTestResult } from "@/lib/db";
 import { testRegistry } from "@/data/tests";
 import { sendTestPassedWebhook } from "@/lib/discord/webhook";
-import { trainingProgression } from "@/data/training";
 
 export async function GET() {
   const session = await getSession();
@@ -64,15 +63,11 @@ export async function POST(request: NextRequest) {
     console.error("Failed to persist test result:", e);
   }
 
-  // Fire webhook only if passed AND this is a new completion (user doesn't already have the granted role)
+  // Fire webhook if passed (fire-and-forget)
   if (passed) {
-    const tier = trainingProgression.find((t) => t.manuals.some((m) => m.id === testId));
-    const alreadyHasRole = tier?.grantsRole && session.roles.includes(tier.grantsRole);
-    if (!alreadyHasRole) {
-      sendTestPassedWebhook(session.displayName, testId, score, total).catch((e) =>
-        console.error("Failed to send webhook:", e),
-      );
-    }
+    sendTestPassedWebhook(session.displayName, testId, score, total).catch((e) =>
+      console.error("Failed to send webhook:", e),
+    );
   }
 
   return NextResponse.json({
