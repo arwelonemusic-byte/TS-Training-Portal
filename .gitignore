@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Next.js
+training-portal/.next/
+
+# Environment
+.env.local
+.env*.local
+
+# OS
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+*.code-workspace
+
+# Remotion
+animations/out/
+
+# Playwright
+.playwright-mcp/
+
+# Claude Code
+.claude/
