@@ -111,13 +111,13 @@ export default function Navigation() {
                     ))}
                   </>
                 ) : (
-                  <Link
+                  <a
                     href="/api/auth/logout"
                     onClick={() => setOpen(false)}
                     className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-text-primary transition-colors hover:bg-bg-card-hover"
                   >
                     Выйти
-                  </Link>
+                  </a>
                 )}
               </div>
             )}
