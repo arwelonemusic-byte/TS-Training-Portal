@@ -3,6 +3,7 @@ node_modules/
 
 # Next.js
 training-portal/.next/
+training-portal/out/
 
 # Environment
 .env.local
