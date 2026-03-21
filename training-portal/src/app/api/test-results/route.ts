@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { getTestResultsForUser, upsertTestResult } from "@/lib/db";
 import { testRegistry } from "@/data/tests";
 import { sendTestPassedWebhook } from "@/lib/discord/webhook";
+import { trainingProgression } from "@/data/training";
 
 export async function GET() {
   const session = await getSession();
@@ -65,7 +66,31 @@ export async function POST(request: NextRequest) {
 
   // Fire webhook if passed (fire-and-forget)
   if (passed) {
-    sendTestPassedWebhook(session.displayName, testId, score, total).catch((e) =>
+    // Determine if this test completes the entire tier
+    const tier = trainingProgression.find((t) => t.manuals.some((m) => m.id === testId));
+
+    let tierCompleted = false;
+    if (tier) {
+      // Get existing results to check if other tests in this tier are already passed
+      let existingResults: Record<string, { passed: boolean }> = {};
+      try {
+        existingResults = await getTestResultsForUser(session.userId);
+      } catch {
+        // DB not available — assume not completed
+      }
+      // Current test is passed, check the rest
+      tierCompleted = tier.manuals.every(
+        (m) => m.id === testId || existingResults[m.id]?.passed,
+      );
+    }
+
+    sendTestPassedWebhook({
+      username: session.displayName,
+      testId,
+      tierCompleted,
+      tierTitle: tier?.title ?? testId,
+      requiresInGameConfirmation: tier?.requiresInGameConfirmation ?? false,
+    }).catch((e) =>
       console.error("Failed to send webhook:", e),
     );
   }
