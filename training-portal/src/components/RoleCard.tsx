@@ -191,7 +191,7 @@ function ManualRow({
       <div className="flex items-center gap-4 min-w-0 flex-1">
         <GuideIcon />
         <div className="min-w-0 flex-1">
-          <p className="text-base font-semibold text-white" style={{ fontFamily: "'Roboto Slab', serif" }}>
+          <p className="text-base font-semibold text-white" style={{ fontFamily: "var(--font-roboto-slab), serif" }}>
             {title}
           </p>
           <p className={`text-sm ${passed ? "text-[#76e176]" : "text-white/60"}`}>
@@ -252,7 +252,7 @@ export default function RoleCard({
         </div>
         <p
           className="text-2xl font-bold text-white/30"
-          style={{ fontFamily: "'Roboto Slab', serif" }}
+          style={{ fontFamily: "var(--font-roboto-slab), serif" }}
         >
           {tier.title}
         </p>
@@ -289,7 +289,7 @@ export default function RoleCard({
             className={`flex-1 text-2xl font-bold ${
               isAvailable ? "text-[#1e1e1e]" : "text-white"
             }`}
-            style={{ fontFamily: "'Roboto Slab', serif" }}
+            style={{ fontFamily: "var(--font-roboto-slab), serif" }}
           >
             {tier.title}
           </p>

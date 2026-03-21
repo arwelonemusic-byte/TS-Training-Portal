@@ -87,7 +87,7 @@ export default function TestClient({ testId }: { testId: string }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <h1
           className="text-[20px] font-bold text-text-primary"
-          style={{ fontFamily: "'Roboto Slab', serif" }}
+          style={{ fontFamily: "var(--font-roboto-slab), serif" }}
         >
           Тест: {title}
         </h1>
@@ -115,7 +115,7 @@ export default function TestClient({ testId }: { testId: string }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginTop: '48px' }}>
         <h2
           className="font-bold text-text-primary"
-          style={{ fontFamily: "'Roboto Slab', serif", fontSize: '24px', lineHeight: '1.3' }}
+          style={{ fontFamily: "var(--font-roboto-slab), serif", fontSize: '24px', lineHeight: '1.3' }}
         >
           {question.question}
         </h2>

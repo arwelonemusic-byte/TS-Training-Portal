@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
+import { Roboto_Slab } from "next/font/google";
 import Navigation from "@/components/Navigation";
 import { UserProvider } from "@/context/UserContext";
 import "./globals.css";
+
+const robotoSlab = Roboto_Slab({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+  variable: "--font-roboto-slab",
+});
 
 export const metadata: Metadata = {
   title: "Tactical Shift — Учебный портал",
@@ -14,12 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700&display=swap" rel="stylesheet" media="print" onLoad="this.media='all'" />
-      </head>
+    <html lang="ru" className={robotoSlab.variable}>
+      <head />
       <body className="min-h-screen antialiased">
         <UserProvider>
           <Navigation />

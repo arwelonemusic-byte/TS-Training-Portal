@@ -44,7 +44,7 @@ export default function Home() {
       <div className="mx-auto max-w-[900px] px-6 py-12 text-center">
         <h1
           className="mb-6 text-[32px] font-bold leading-[1.1] tracking-tight text-text-primary sm:text-[64px]"
-          style={{ fontFamily: "'Roboto Slab', serif" }}
+          style={{ fontFamily: "var(--font-roboto-slab), serif" }}
         >
           Tactical Shift
         </h1>
@@ -73,7 +73,7 @@ export default function Home() {
       <div className="mb-10">
         <h1
           className="mb-3 text-[32px] font-bold leading-[1.1] tracking-tight text-text-primary sm:text-[64px]"
-          style={{ fontFamily: "'Roboto Slab', serif" }}
+          style={{ fontFamily: "var(--font-roboto-slab), serif" }}
         >
           Привет, {user.displayName}!
         </h1>

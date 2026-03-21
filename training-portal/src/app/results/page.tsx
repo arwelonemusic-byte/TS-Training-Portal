@@ -157,7 +157,7 @@ function ResultsContent() {
           <h1
             className="font-bold"
             style={{
-              fontFamily: "'Roboto Slab', serif",
+              fontFamily: "var(--font-roboto-slab), serif",
               fontSize: '36px',
               color: 'white',
             }}
@@ -170,7 +170,7 @@ function ResultsContent() {
         <p
           className="font-bold"
           style={{
-            fontFamily: "'Roboto Slab', serif",
+            fontFamily: "var(--font-roboto-slab), serif",
             fontSize: '36px',
             color: passed ? '#76e176' : '#E13346',
           }}

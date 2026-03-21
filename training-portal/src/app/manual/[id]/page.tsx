@@ -63,7 +63,7 @@ export default async function ManualPage({
 
           {test && (
             <div className="mt-16 rounded-2xl bg-[#FFCA4F] text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '20px' }}>
-              <h2 className="text-4xl font-bold text-[#1e1e1e]" style={{ fontFamily: "'Roboto Slab', serif" }}>
+              <h2 className="text-4xl font-bold text-[#1e1e1e]" style={{ fontFamily: "var(--font-roboto-slab), serif" }}>
                 Готовы к тесту?
               </h2>
               <div className="flex flex-col gap-1 text-base font-medium text-[#1e1e1e]">
