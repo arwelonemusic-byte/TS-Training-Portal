@@ -84,9 +84,12 @@ function RealUserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function init() {
       setIsLoading(true);
-      await fetchSession();
-      await refreshTestResults();
-      setIsLoading(false);
+      try {
+        await fetchSession();
+        await refreshTestResults();
+      } finally {
+        setIsLoading(false);
+      }
     }
     init();
   }, [fetchSession, refreshTestResults]);
