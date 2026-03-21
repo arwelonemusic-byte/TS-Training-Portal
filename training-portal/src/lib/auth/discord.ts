@@ -75,7 +75,8 @@ export async function fetchGuildMember(
   }
 
   const data = await res.json();
-  return { roles: data.roles, nick: data.nick ?? null };
+  console.log("Guild member response:", JSON.stringify({ nick: data.nick, user: data.user?.global_name, username: data.user?.username }));
+  return { roles: data.roles, nick: data.nick ?? data.user?.global_name ?? null };
 }
 
 export function mapRoleIdsToNames(roleIds: string[]): string[] {
