@@ -14,6 +14,9 @@ const robotoSlab = Roboto_Slab({
 export const metadata: Metadata = {
   title: "Tactical Shift — Учебный портал",
   description: "Обучение и сертификация для сообщества Tactical Shift",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
