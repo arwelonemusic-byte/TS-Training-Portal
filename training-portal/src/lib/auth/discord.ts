@@ -79,6 +79,26 @@ export async function fetchGuildMember(
   return { roles: data.roles, nick: data.nick ?? data.user?.global_name ?? null };
 }
 
+/** Fetch a guild member's roles using the bot token (no user OAuth needed) */
+export async function fetchGuildMemberByBot(
+  userId: string,
+  guildId: string,
+): Promise<DiscordGuildMember> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) throw new Error("DISCORD_BOT_TOKEN is not set");
+
+  const res = await fetch(`${DISCORD_API}/guilds/${guildId}/members/${userId}`, {
+    headers: { Authorization: `Bot ${botToken}` },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch guild member via bot: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return { roles: data.roles, nick: data.nick ?? data.user?.global_name ?? null };
+}
+
 export function mapRoleIdsToNames(roleIds: string[]): string[] {
   const mapStr = process.env.DISCORD_ROLE_MAP;
   if (!mapStr) return [];
