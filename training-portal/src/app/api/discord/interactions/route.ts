@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       return allPassed ? `✅ ${tier.title}` : `📖 ${tier.title}`;
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://training.tacticalshift.ru";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://ts-training-portal.vercel.app";
 
     return NextResponse.json({
       type: 4,
