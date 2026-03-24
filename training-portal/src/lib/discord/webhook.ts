@@ -1,35 +1,45 @@
 import { testRegistry } from "@/data/tests";
 
 interface WebhookOptions {
+  userId: string;
   username: string;
   testId: string;
   tierCompleted: boolean;
   tierTitle: string;
   requiresInGameConfirmation: boolean;
+  isRefresh: boolean;
 }
 
 export async function sendTestPassedWebhook(options: WebhookOptions): Promise<void> {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) return;
 
-  const { username, testId, tierCompleted, tierTitle, requiresInGameConfirmation } = options;
+  const { userId, username, testId, tierCompleted, tierTitle, requiresInGameConfirmation, isRefresh } = options;
   const testTitle = testRegistry[testId]?.title ?? testId;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const mention = `<@${userId}>`;
 
   let title: string;
   let description: string;
+  let color: number;
 
-  if (tierCompleted) {
+  if (isRefresh) {
+    title = `${username} освежил в памяти обучение "${testTitle}"`;
+    description = `${mention}\n\n[Перейти на портал обучения](${baseUrl})`;
+    color = 0x7e828c; // neutral grey
+  } else if (tierCompleted) {
     title = `${username} прошел обучение "${tierTitle}"`;
     description = requiresInGameConfirmation
-      ? `Гордимся тобой, ${username}! Роль будет выдана после подтверждения на игре.`
-      : `Гордимся тобой, ${username}! Роль будет вскоре выдана администратором.`;
+      ? `Гордимся тобой, ${mention}! Роль будет выдана после подтверждения на игре.`
+      : `Гордимся тобой, ${mention}! Роль будет вскоре выдана администратором.`;
+    description += `\n\n[Перейти на портал обучения](${baseUrl})`;
+    color = 0x76e176; // green
   } else {
     title = `${username} сдал тест "${testTitle}"`;
-    description = `Продолжай в том же духе!`;
+    description = `Продолжай в том же духе, ${mention}!`;
+    description += `\n\n[Перейти на портал обучения](${baseUrl})`;
+    color = 0x5996DC; // blue
   }
-
-  description += `\n\n[Перейти на портал обучения](${baseUrl})`;
 
   try {
     await fetch(webhookUrl, {
@@ -40,7 +50,7 @@ export async function sendTestPassedWebhook(options: WebhookOptions): Promise<vo
           {
             title,
             description,
-            color: tierCompleted ? 0x76e176 : 0x5996DC,
+            color,
             timestamp: new Date().toISOString(),
             footer: { text: "Tactical Shift Training Portal" },
           },

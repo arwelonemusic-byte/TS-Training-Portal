@@ -84,12 +84,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user already has the role this tier grants (i.e. a refresh/revisit)
+    const isRefresh = tier?.grantsRole
+      ? session.roles.includes(tier.grantsRole)
+      : false;
+
     sendTestPassedWebhook({
+      userId: session.userId,
       username: session.displayName,
       testId,
       tierCompleted,
       tierTitle: tier?.title ?? testId,
       requiresInGameConfirmation: tier?.requiresInGameConfirmation ?? false,
+      isRefresh,
     }).catch((e) =>
       console.error("Failed to send webhook:", e),
     );
