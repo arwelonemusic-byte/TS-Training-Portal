@@ -18,7 +18,7 @@ export default function TestClient({ testId }: { testId: string }) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phase, setPhase] = useState<TransitionPhase>("idle");
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const prefersReducedMotion =
     typeof window !== "undefined" &&
