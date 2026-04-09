@@ -1,12 +1,21 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { trainingProgression } from "@/data/training";
+import { trainingProgression, extrasProgression } from "@/data/training";
 import { useUser } from "@/context/UserContext";
 import RoleCard from "@/components/RoleCard";
 
 export default function Home() {
   const { user, roles, testResults, isLoading } = useUser();
+  const [activeTab, setActiveTab] = useState<"basics" | "extras">("basics");
+  const tabsRef = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   function getTierStatus(
     tierIndex: number,
@@ -82,17 +91,100 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        {trainingProgression.map((tier, i) => (
-          <RoleCard
-            key={tier.id}
-            tier={tier}
-            status={getTierStatus(i)}
-            manualResults={testResults}
-            defaultOpen={i === firstAvailable}
-          />
+      <div className="relative mb-6 flex gap-6">
+        {(["basics", "extras"] as const).map((tab) => (
+          <button
+            key={tab}
+            ref={(el) => { tabsRef.current[tab] = el; }}
+            onClick={() => setActiveTab(tab)}
+            className="cursor-pointer pb-2"
+          >
+            <span
+              className={`text-2xl font-bold transition-colors duration-200 ${activeTab === tab ? "text-text-primary" : "text-text-primary/30 hover:text-text-primary"}`}
+              style={{ fontFamily: "var(--font-roboto-slab), serif" }}
+            >
+              {tab === "basics" ? "Основы" : "Допы"}
+            </span>
+          </button>
         ))}
+        <div
+          className="absolute bottom-0 h-0.5 bg-text-primary transition-all duration-300 ease-in-out"
+          style={{
+            left: tabsRef.current[activeTab]?.offsetLeft ?? 0,
+            width: tabsRef.current[activeTab]?.offsetWidth ?? 0,
+          }}
+        />
       </div>
+
+      {activeTab === "basics" ? (
+        <div className="flex flex-col gap-2.5">
+          {trainingProgression.map((tier, i) => (
+            <div
+              key={tier.id}
+              style={{
+                opacity: mounted ? 1 : 0,
+                transform: mounted ? 'translateY(0)' : 'translateY(12px)',
+                transition: `opacity 400ms cubic-bezier(0.25, 1, 0.5, 1) ${i * 80}ms, transform 400ms cubic-bezier(0.25, 1, 0.5, 1) ${i * 80}ms`,
+              }}
+            >
+              <RoleCard
+                tier={tier}
+                status={getTierStatus(i)}
+                manualResults={testResults}
+                defaultOpen={i === firstAvailable}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          {extrasProgression.map((tier, i) => {
+            const hasRequired = tier.requiredRoles.every((role) =>
+              roles.includes(role),
+            );
+            const allPassed = tier.manuals.length > 0 && tier.manuals.every(
+              (m) => testResults[m.id]?.passed,
+            );
+            const status: "locked" | "available" | "completed" = !hasRequired
+              ? "locked"
+              : allPassed
+                ? "completed"
+                : "available";
+            return (
+              <div
+                key={tier.id}
+                style={{
+                  opacity: mounted ? 1 : 0,
+                  transform: mounted ? 'translateY(0)' : 'translateY(12px)',
+                  transition: `opacity 400ms cubic-bezier(0.25, 1, 0.5, 1) ${i * 80}ms, transform 400ms cubic-bezier(0.25, 1, 0.5, 1) ${i * 80}ms`,
+                }}
+              >
+                <RoleCard
+                  tier={tier}
+                  status={status}
+                  manualResults={testResults}
+                  defaultOpen={status === "available"}
+                />
+              </div>
+            );
+          })}
+          <div className="flex items-center gap-4 rounded-2xl bg-bg-card p-5 opacity-50">
+            <svg className="shrink-0 text-text-muted" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M12 8v8M8 12h8" />
+            </svg>
+            <span
+              className="flex-1 text-2xl font-bold text-text-primary/30"
+              style={{ fontFamily: "var(--font-roboto-slab), serif" }}
+            >
+              Рецепт плова от Кабана
+            </span>
+            <span className="text-sm font-semibold uppercase text-text-muted">
+              Скоро
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

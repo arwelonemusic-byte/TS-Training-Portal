@@ -179,15 +179,24 @@ function ManualRow({
   passed,
   score,
   total,
+  staggerIndex = 0,
+  animate = false,
 }: {
   title: string;
   href: string;
   passed: boolean;
   score?: number;
   total?: number;
+  staggerIndex?: number;
+  animate?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-[10px] bg-[#2a2a2a] py-3 pl-4 pr-3 transition-colors duration-150 hover:bg-[#333333] sm:flex-row sm:items-center sm:gap-4">
+    <div
+      className="flex flex-col gap-3 rounded-[10px] bg-[#2a2a2a] py-3 pl-4 pr-3 transition-colors duration-150 hover:bg-[#333333] sm:flex-row sm:items-center sm:gap-4"
+      style={animate ? {
+        animation: `manualRowIn 300ms cubic-bezier(0.25, 1, 0.5, 1) ${staggerIndex * 60}ms both`,
+      } : undefined}
+    >
       <div className="flex items-center gap-4 min-w-0 flex-1">
         <GuideIcon />
         <div className="min-w-0 flex-1">
@@ -238,6 +247,7 @@ export default function RoleCard({
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const [animateRows, setAnimateRows] = useState(false);
   const isLocked = status === "locked";
   const isCompleted = status === "completed";
   const isAvailable = status === "available";
@@ -250,12 +260,19 @@ export default function RoleCard({
         <div className="flex h-8 w-8 items-center justify-center">
           <LockIcon />
         </div>
-        <p
-          className="text-2xl font-bold text-white/30"
-          style={{ fontFamily: "var(--font-roboto-slab), serif" }}
-        >
-          {tier.title}
-        </p>
+        <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+          <p
+            className="flex-1 text-2xl font-bold text-white/30"
+            style={{ fontFamily: "var(--font-roboto-slab), serif" }}
+          >
+            {tier.title}
+          </p>
+          {tier.requiredRoles.length > 0 && (
+            <span className="shrink-0 text-[13px] font-bold text-white/20">
+              Требуется: {tier.requiredRoles.join(", ")}
+            </span>
+          )}
+        </div>
       </div>
     );
   }
@@ -270,8 +287,14 @@ export default function RoleCard({
     >
       {/* Header */}
       <button
-        onClick={() => isExpandable && setOpen((o) => !o)}
-        className={`group flex w-full flex-col gap-3 px-5 py-5 text-left transition-colors duration-150 sm:flex-row sm:items-center sm:gap-4 ${
+        onClick={() => {
+          if (!isExpandable) return;
+          setOpen((o) => {
+            if (!o) setAnimateRows(true);
+            return !o;
+          });
+        }}
+        className={`group flex w-full items-start gap-4 px-5 py-5 text-left transition-colors duration-150 sm:items-center ${
           isExpandable ? "cursor-pointer" : "cursor-default"
         } ${
           isAvailable ? "hover:bg-[#ffd36b]" : "hover:bg-white/[0.04]"
@@ -283,8 +306,8 @@ export default function RoleCard({
             : ""
         }`}
       >
-        <div className="flex flex-1 items-center gap-4">
-          {isExpandable && <ExpandButton open={open} />}
+        {isExpandable && <ExpandButton open={open} />}
+        <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
           <p
             className={`flex-1 text-2xl font-bold ${
               isAvailable ? "text-[#1e1e1e]" : "text-white"
@@ -293,8 +316,8 @@ export default function RoleCard({
           >
             {tier.title}
           </p>
+          {isAvailable ? <UnlockBadge /> : <CompletedBadge />}
         </div>
-        {isAvailable ? <UnlockBadge /> : <CompletedBadge />}
       </button>
 
       {/* Animated expand/collapse */}
@@ -315,7 +338,7 @@ export default function RoleCard({
         {/* Manual rows */}
         {tier.manuals.length > 0 && (
           <div className="flex flex-col gap-2 px-2 pb-2">
-            {tier.manuals.map((manual) => {
+            {tier.manuals.map((manual, idx) => {
               const result = manualResults[manual.id] ?? { passed: false };
               return (
                 <ManualRow
@@ -325,6 +348,8 @@ export default function RoleCard({
                   passed={result.passed}
                   score={result.score}
                   total={result.total}
+                  staggerIndex={idx}
+                  animate={animateRows}
                 />
               );
             })}

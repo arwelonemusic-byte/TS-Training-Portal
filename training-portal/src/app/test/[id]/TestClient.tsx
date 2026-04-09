@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { testRegistry } from "@/data/tests";
 import { useUser } from "@/context/UserContext";
+
+type TransitionPhase = "idle" | "exit" | "enter";
 
 export default function TestClient({ testId }: { testId: string }) {
   const router = useRouter();
@@ -15,6 +17,40 @@ export default function TestClient({ testId }: { testId: string }) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phase, setPhase] = useState<TransitionPhase>("idle");
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const transitionToNext = useCallback(
+    (nextIndex: number) => {
+      if (prefersReducedMotion) {
+        setCurrentIndex(nextIndex);
+        setSelectedKey(null);
+        return;
+      }
+
+      clearTimeout(timeoutRef.current);
+      setPhase("exit");
+
+      timeoutRef.current = setTimeout(() => {
+        setCurrentIndex(nextIndex);
+        setSelectedKey(null);
+        // Start at offset position (no transition)
+        setPhase("enter");
+
+        // Next frame: animate to final position
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setPhase("idle");
+          });
+        });
+      }, 200);
+    },
+    [prefersReducedMotion],
+  );
 
   if (!config) {
     return (
@@ -76,8 +112,7 @@ export default function TestClient({ testId }: { testId: string }) {
         }
       }
     } else {
-      setCurrentIndex(currentIndex + 1);
-      setSelectedKey(null);
+      transitionToNext(currentIndex + 1);
     }
   }
 
@@ -112,7 +147,22 @@ export default function TestClient({ testId }: { testId: string }) {
       </div>
 
       {/* Question + Options */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginTop: '48px' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '32px',
+          marginTop: '48px',
+          transition: phase === 'enter' ? 'none' : 'opacity 200ms cubic-bezier(0.25, 1, 0.5, 1), transform 200ms cubic-bezier(0.25, 1, 0.5, 1)',
+          opacity: phase === 'exit' || phase === 'enter' ? 0 : 1,
+          transform:
+            phase === 'exit'
+              ? 'translateX(-24px)'
+              : phase === 'enter'
+                ? 'translateX(24px)'
+                : 'translateX(0)',
+        }}
+      >
         <h2
           className="font-bold text-text-primary"
           style={{ fontFamily: "var(--font-roboto-slab), serif", fontSize: '24px', lineHeight: '1.3' }}
@@ -177,7 +227,7 @@ export default function TestClient({ testId }: { testId: string }) {
       <div style={{ marginTop: '32px' }}>
         <button
           onClick={handleNext}
-          disabled={!selectedKey}
+          disabled={!selectedKey || phase !== 'idle'}
           className="w-full text-center text-[13px] font-black transition-all duration-150"
           style={{
             padding: '14px 16px',

@@ -6,6 +6,8 @@ import { Line } from "./Line";
 import { ChevronToLine } from "./ChevronToLine";
 import { FileToChevronAR } from "./FileToChevronAR";
 import { FileToChevronARMirrored } from "./FileToChevronARMirrored";
+import { BoundingSuccessive } from "./BoundingSuccessive";
+import { BoundingAlternate } from "./BoundingAlternate";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -62,6 +64,22 @@ export const RemotionRoot: React.FC = () => {
         id="FileToChevronARMirrored"
         component={FileToChevronARMirrored}
         durationInFrames={150}
+        fps={30}
+        width={600}
+        height={600}
+      />
+      <Composition
+        id="BoundingSuccessive"
+        component={BoundingSuccessive}
+        durationInFrames={240}
+        fps={30}
+        width={600}
+        height={600}
+      />
+      <Composition
+        id="BoundingAlternate"
+        component={BoundingAlternate}
+        durationInFrames={190}
         fps={30}
         width={600}
         height={600}

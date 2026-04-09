@@ -131,3 +131,42 @@ export const trainingProgression: RoleTier[] = [
     manuals: [],
   },
 ];
+
+// ── Extra training materials (not part of the main progression) ──────────────
+
+export const extrasProgression: RoleTier[] = [
+  {
+    id: "scenario-creation",
+    title: "Создание миссий для Arma Reforger",
+    description:
+      "Пошаговое руководство по созданию сценариев в Enfusion Workbench с TS Mission Toolkit: настройка проекта, менеджеры, спавн, AI-зоны, плагины для ботов, маркеры, арсенал и публикация мода в Workshop.",
+    requiredRoles: [],
+    grantsRole: null,
+    requiresInGameConfirmation: false,
+    manuals: [
+      {
+        id: "scenario-creation",
+        title: "Создание миссий для Arma Reforger",
+        href: "/manual/scenario-creation",
+        testHref: "/test/scenario-creation",
+      },
+    ],
+  },
+  {
+    id: "armoured-crew",
+    title: "Armoured Crew — Экипаж тяжёлой техники",
+    description:
+      "Роли в экипаже бронетехники, коммуникация внутри машины, приказы водителю и стрелку, целеуказание и советы по тактике применения тяжёлой техники.",
+    requiredRoles: ["SL"],
+    grantsRole: null,
+    requiresInGameConfirmation: false,
+    manuals: [
+      {
+        id: "armoured-crew",
+        title: "Armoured Crew — Экипаж тяжёлой техники",
+        href: "/manual/armoured-crew",
+        testHref: "/test/armoured-crew",
+      },
+    ],
+  },
+];

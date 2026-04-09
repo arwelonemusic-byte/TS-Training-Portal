@@ -7,6 +7,8 @@ import * as ftl from "./ftl";
 import * as landnav from "./landnav";
 import * as convoy from "./convoy";
 import * as rto from "./rto";
+import * as armouredCrew from "./armoured-crew";
+import * as scenarioCreation from "./scenario-creation";
 
 export interface TestConfig {
   questions: TestQuestion[];
@@ -58,5 +60,17 @@ export const testRegistry: Record<string, TestConfig> = {
     passThreshold: rto.PASS_THRESHOLD,
     title: "RTO — Единые правила радиообмена",
     manualId: "rto",
+  },
+  "armoured-crew": {
+    questions: armouredCrew.questions,
+    passThreshold: armouredCrew.PASS_THRESHOLD,
+    title: "Armoured Crew — Экипаж тяжёлой техники",
+    manualId: "armoured-crew",
+  },
+  "scenario-creation": {
+    questions: scenarioCreation.questions,
+    passThreshold: scenarioCreation.PASS_THRESHOLD,
+    title: "Создание миссий для Arma Reforger",
+    manualId: "scenario-creation",
   },
 };

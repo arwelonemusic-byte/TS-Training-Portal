@@ -100,12 +100,22 @@ function preprocessFormations(md: string): string {
   });
 }
 
+function preprocessYouTube(md: string): string {
+  return md.replace(
+    /:::youtube\[([^\]]+)\]/g,
+    (_match, videoId: string) =>
+      `<div class="video-embed"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`,
+  );
+}
+
 export function parseManualMarkdown(content: string): string {
-  const preprocessed = preprocessFormations(content);
+  let preprocessed = preprocessFormations(content);
+  preprocessed = preprocessYouTube(preprocessed);
   const renderer = createRenderer();
   marked.setOptions({ gfm: true, breaks: false });
   marked.use({ renderer });
   let result = marked.parse(preprocessed) as string;
+  result = result.replace(/<p>(<div[^>]*>[\s\S]*?<\/div>\s*<\/div>)<\/p>/g, "$1");
   result = result.replace(/<p>(<div[\s\S]*?<\/div>)<\/p>/g, "$1");
   return result;
 }

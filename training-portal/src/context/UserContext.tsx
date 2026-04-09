@@ -27,7 +27,7 @@ const UserContext = createContext<UserState | null>(null);
 const IS_MOCK = process.env.NEXT_PUBLIC_MOCK_MODE === "true";
 
 function MockUserProvider({ children }: { children: ReactNode }) {
-  const [presetIndex, setPresetIndex] = useState(0);
+  const [presetIndex, setPresetIndex] = useState(5);
   const preset: MockPreset = mockPresets[presetIndex];
 
   const value: UserState = {

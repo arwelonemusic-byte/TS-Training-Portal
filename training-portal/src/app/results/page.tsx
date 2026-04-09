@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { testRegistry } from "@/data/tests";
@@ -89,7 +89,7 @@ function ResultsContent() {
   }
 
   const { title, manualId, score, total, passed, details } = data;
-  const correctCount = score;
+  const [displayScore, setDisplayScore] = useState(0);
 
   useEffect(() => {
     if (!passed) return;
@@ -101,6 +101,21 @@ function ResultsContent() {
       if (Date.now() < end) requestAnimationFrame(frame);
     })();
   }, [passed]);
+
+  // Animated score counter
+  useEffect(() => {
+    if (score === 0) { setDisplayScore(0); return; }
+
+    const duration = 600;
+    const stepTime = Math.max(Math.floor(duration / score), 30);
+    let current = 0;
+    const timer = setInterval(() => {
+      current++;
+      setDisplayScore(current);
+      if (current >= score) clearInterval(timer);
+    }, stepTime);
+    return () => clearInterval(timer);
+  }, [score]);
 
   return (
     <div className="mx-auto px-6" style={{ maxWidth: '640px', paddingTop: '49px', paddingBottom: '49px' }}>
@@ -115,6 +130,7 @@ function ResultsContent() {
           borderRadius: '16px',
           backgroundColor: '#2a2a2a',
           textAlign: 'center',
+          animation: 'bannerIn 500ms cubic-bezier(0.25, 1, 0.5, 1) both',
         }}
       >
         {/* Icon */}
@@ -175,7 +191,7 @@ function ResultsContent() {
             color: passed ? '#76e176' : '#E13346',
           }}
         >
-          {correctCount} / {total}
+          {displayScore} / {total}
         </p>
       </div>
 
@@ -191,6 +207,7 @@ function ResultsContent() {
               padding: '20px',
               borderRadius: '8px',
               backgroundColor: '#2a2a2a',
+              animation: `resultItemIn 350ms cubic-bezier(0.25, 1, 0.5, 1) ${400 + i * 50}ms both`,
             }}
           >
             {/* Status badge */}

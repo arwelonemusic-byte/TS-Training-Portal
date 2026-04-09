@@ -43,7 +43,7 @@ npm run build    # Production build
 npm start        # Serve production build
 ```
 
-**Architecture:** Next.js 16 App Router with Tailwind CSS 4. No database — all content is hardcoded TypeScript.
+**Architecture:** Next.js 16 App Router with Tailwind CSS 4. Content is hardcoded TypeScript; user progress is persisted in Neon Postgres.
 
 - `src/data/manuals.ts` — all manual content as markdown strings in `manualRegistry` keyed by ID (intro, rifleman, grenadier, ftl, landnav, convoy, rto)
 - `src/data/tests/*.ts` — one test file per manual (intro.ts, rifleman.ts, etc.) with `questions` array and `PASS_THRESHOLD`
@@ -62,7 +62,20 @@ npm start        # Serve production build
 - `:::formation[gif]{name="..."}` with `+ pro` / `- con` lines → formation card with GIF
 - `<div class="image-row">` → side-by-side images, `<div class="marker-grid">` → icon grid
 
-**Theme:** Dark neutral palette with red accent. CSS custom properties in `globals.css` via Tailwind `@theme`. Key tokens: `bg-primary` (#0f1114), `bg-card` (#16181d), `text-primary` (#e4e5e8), `text-secondary` (#7e828c), `accent-red` (#E13446). No green — all accents are neutral grey or red.
+**Theme:** Dark neutral palette with red accent. CSS custom properties in `globals.css` via Tailwind `@theme`. Key tokens: `bg-primary` (#0f1114), `bg-card` (#16181d), `text-primary` (#e4e5e8), `text-secondary` (#7e828c), `accent-red` (#E13446). Green is used for success/completion states.
+
+**Auth & Sessions:** Discord OAuth2 (`guilds.members.read` scope). JWT session cookie (`ts_session`) stores user info. Session endpoint re-fetches roles from Discord via bot token on every request, so role changes apply on page refresh without re-login.
+
+**Key files:**
+- `src/lib/auth/session.ts` — JWT create/verify, cookie config
+- `src/lib/auth/discord.ts` — OAuth exchange, guild member fetch (user token + bot token), role ID→name mapping
+- `src/app/api/auth/callback/route.ts` — OAuth callback, creates session
+- `src/app/api/auth/session/route.ts` — returns user info with live-refreshed roles
+- `src/app/api/test-results/route.ts` — server-side grading, DB persist, context-aware webhook
+- `src/lib/discord/webhook.ts` — posts to Discord channel on test pass (mid-tier vs tier completion)
+- `src/context/UserContext.tsx` — client-side user/roles/testResults state
+
+**Env vars (Vercel):** `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN`, `DISCORD_WEBHOOK_URL`, `DISCORD_ROLE_MAP` (JSON id→name), `DISCORD_APP_ID`, `SESSION_SECRET`, `DATABASE_URL`, `NEXT_PUBLIC_BASE_URL`
 
 **Assets:** Formation GIFs in `public/animations/`. Manual images organized by manual in `public/manuals/{manual-id}/`. Logo SVG at `public/logo-icon.svg`.
 
@@ -71,3 +84,10 @@ npm start        # Serve production build
 When a new animation is created or updated in `animations/`, the rendered GIF must be manually copied to `training-portal/public/animations/` to appear on the portal. Formation cards in `manuals.ts` reference GIFs by filename via `:::formation[filename.gif]` syntax.
 
 **Obsidian manuals source:** Training manual source files live in `C:\Users\djdav\Obsidian Vaults\Alex's Vault\Inbox\`. Images are in `...\Attachments\`. When converting to portal, strip `![[]]` embeds and copy images to `public/manuals/`.
+
+## Deployment
+
+- **Vercel**: ts-training-portal (Hobby tier, auto-deploys on push to master), URL: `https://ts-training-portal.vercel.app`
+- **Database**: Neon Postgres (free tier, AWS EU region)
+- **GitHub**: arwelonemusic-byte/TS-Training-Portal (private)
+- **Git identity**: Alex / arwelonemusic@gmail.com
