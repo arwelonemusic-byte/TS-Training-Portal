@@ -159,7 +159,7 @@ export const extrasProgression: RoleTier[] = [
       "Роли в экипаже бронетехники, коммуникация внутри машины, приказы водителю и стрелку, целеуказание и советы по тактике применения тяжёлой техники.",
     requiredRoles: ["SL"],
     grantsRole: null,
-    requiresInGameConfirmation: false,
+    requiresInGameConfirmation: true,
     manuals: [
       {
         id: "armoured-crew",

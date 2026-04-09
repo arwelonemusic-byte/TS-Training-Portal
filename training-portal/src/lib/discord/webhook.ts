@@ -29,9 +29,13 @@ export async function sendTestPassedWebhook(options: WebhookOptions): Promise<vo
     color = 0x7e828c; // neutral grey
   } else if (tierCompleted) {
     title = `${username} прошел обучение "${tierTitle}"`;
-    description = requiresInGameConfirmation
-      ? `Гордимся тобой, ${mention}! Роль будет выдана после подтверждения на игре.`
-      : `Гордимся тобой, ${mention}! Роль будет вскоре выдана администратором.`;
+    if (testId === "scenario-creation") {
+      description = `Гордимся тобой, ${mention}, и ждем от тебя новых миссий!`;
+    } else if (requiresInGameConfirmation) {
+      description = `Гордимся тобой, ${mention}! Роль будет выдана после подтверждения на игре.`;
+    } else {
+      description = `Гордимся тобой, ${mention}! Роль будет вскоре выдана администратором.`;
+    }
     description += `\n\n[Перейти на портал обучения](${baseUrl})`;
     color = 0x76e176; // green
   } else {

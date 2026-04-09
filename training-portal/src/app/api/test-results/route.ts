@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { getTestResultsForUser, upsertTestResult } from "@/lib/db";
 import { testRegistry } from "@/data/tests";
 import { sendTestPassedWebhook } from "@/lib/discord/webhook";
-import { trainingProgression } from "@/data/training";
+import { trainingProgression, extrasProgression } from "@/data/training";
 
 export async function GET() {
   const session = await getSession();
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   // Fire webhook if passed (fire-and-forget)
   if (passed) {
     // Determine if this test completes the entire tier
-    const tier = trainingProgression.find((t) => t.manuals.some((m) => m.id === testId));
+    const tier = [...trainingProgression, ...extrasProgression].find((t) => t.manuals.some((m) => m.id === testId));
 
     let tierCompleted = false;
     if (tier) {
