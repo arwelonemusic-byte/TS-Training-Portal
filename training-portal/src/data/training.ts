@@ -118,6 +118,12 @@ export const trainingProgression: RoleTier[] = [
         href: "/manual/rto",
         testHref: "/test/rto",
       },
+      {
+        id: "squad-leadership",
+        title: "Командование отделением (SL)",
+        href: "/manual/squad-leadership",
+        testHref: "/test/squad-leadership",
+      },
     ],
   },
   {

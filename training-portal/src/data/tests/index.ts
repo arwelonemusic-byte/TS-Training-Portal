@@ -7,6 +7,7 @@ import * as ftl from "./ftl";
 import * as landnav from "./landnav";
 import * as convoy from "./convoy";
 import * as rto from "./rto";
+import * as squadLeadership from "./squad-leadership";
 import * as armouredCrew from "./armoured-crew";
 import * as scenarioCreation from "./scenario-creation";
 
@@ -60,6 +61,12 @@ export const testRegistry: Record<string, TestConfig> = {
     passThreshold: rto.PASS_THRESHOLD,
     title: "RTO — Единые правила радиообмена",
     manualId: "rto",
+  },
+  "squad-leadership": {
+    questions: squadLeadership.questions,
+    passThreshold: squadLeadership.PASS_THRESHOLD,
+    title: "Командование отделением (SL)",
+    manualId: "squad-leadership",
   },
   "armoured-crew": {
     questions: armouredCrew.questions,
