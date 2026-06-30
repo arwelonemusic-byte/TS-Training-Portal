@@ -25,22 +25,22 @@ export async function sendTestPassedWebhook(options: WebhookOptions): Promise<vo
 
   if (isRefresh) {
     title = `${username} освежил в памяти обучение "${testTitle}"`;
-    description = `${mention}\n\n[Перейти на портал обучения](${baseUrl})`;
+    description = `**${username}**\n\n[Перейти на портал обучения](${baseUrl})`;
     color = 0x7e828c; // neutral grey
   } else if (tierCompleted) {
     title = `${username} прошел обучение "${tierTitle}"`;
     if (testId === "scenario-creation") {
-      description = `Гордимся тобой, ${mention}, и ждем от тебя новых миссий!`;
+      description = `Гордимся тобой, **${username}**, и ждем от тебя новых миссий!`;
     } else if (requiresInGameConfirmation) {
-      description = `Гордимся тобой, ${mention}! Роль будет выдана после подтверждения на игре.`;
+      description = `Гордимся тобой, **${username}**! Роль будет выдана после подтверждения на игре.`;
     } else {
-      description = `Гордимся тобой, ${mention}! Роль будет вскоре выдана администратором.`;
+      description = `Гордимся тобой, **${username}**! Роль будет вскоре выдана администратором.`;
     }
     description += `\n\n[Перейти на портал обучения](${baseUrl})`;
     color = 0x76e176; // green
   } else {
     title = `${username} сдал тест "${testTitle}"`;
-    description = `Продолжай в том же духе, ${mention}!`;
+    description = `Продолжай в том же духе, **${username}**!`;
     description += `\n\n[Перейти на портал обучения](${baseUrl})`;
     color = 0x5996DC; // blue
   }
@@ -50,6 +50,11 @@ export async function sendTestPassedWebhook(options: WebhookOptions): Promise<vo
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        // Mention lives in top-level content so Discord delivers a resolved
+        // user object — embed mentions rely on each viewer's local cache and
+        // render as a raw, unclickable <@id> when the user isn't cached.
+        content: mention,
+        allowed_mentions: { parse: ["users"] },
         embeds: [
           {
             title,
