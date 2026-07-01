@@ -108,3 +108,84 @@ export function mapRoleIdsToNames(roleIds: string[]): string[] {
     .map((id) => roleMap[id])
     .filter((name): name is string => !!name);
 }
+
+/** Reverse lookup: resolve a role name to its Discord role ID via DISCORD_ROLE_MAP. */
+export function getRoleIdByName(name: string): string | null {
+  const mapStr = process.env.DISCORD_ROLE_MAP;
+  if (!mapStr) return null;
+
+  const roleMap: Record<string, string> = JSON.parse(mapStr);
+  for (const [id, roleName] of Object.entries(roleMap)) {
+    if (roleName === name) return id;
+  }
+  return null;
+}
+
+/**
+ * Assign one or more roles to a guild member using the bot token.
+ * Returns true only if every requested role was assigned successfully.
+ * Requires the bot to have Manage Roles and to sit above each target role in the hierarchy.
+ * PUT is idempotent — re-granting an existing role is a harmless no-op.
+ */
+export async function assignRolesToMember(
+  userId: string,
+  guildId: string,
+  roleNames: string[],
+): Promise<boolean> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) {
+    console.error("DISCORD_BOT_TOKEN is not set — cannot assign roles");
+    return false;
+  }
+
+  let allSucceeded = true;
+  for (const name of roleNames) {
+    const roleId = getRoleIdByName(name);
+    if (!roleId) {
+      console.error(`Role "${name}" not found in DISCORD_ROLE_MAP — skipping assignment`);
+      allSucceeded = false;
+      continue;
+    }
+
+    const res = await fetch(
+      `${DISCORD_API}/guilds/${guildId}/members/${userId}/roles/${roleId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bot ${botToken}`,
+          "X-Audit-Log-Reason": "Auto-granted by Training Portal on tier completion",
+        },
+      },
+    );
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(
+        `Failed to assign role "${name}" (${roleId}) to ${userId}: ${res.status} ${text}`,
+      );
+      allSucceeded = false;
+    }
+  }
+
+  return allSucceeded;
+}
+
+/** Add a reaction to a message as the bot (e.g. ✅ to mark a role as granted). */
+export async function addBotReaction(
+  channelId: string,
+  messageId: string,
+  emoji: string,
+): Promise<void> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) return;
+
+  const res = await fetch(
+    `${DISCORD_API}/channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(emoji)}/@me`,
+    { method: "PUT", headers: { Authorization: `Bot ${botToken}` } },
+  );
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error(`Failed to add bot reaction: ${res.status} ${text}`);
+  }
+}

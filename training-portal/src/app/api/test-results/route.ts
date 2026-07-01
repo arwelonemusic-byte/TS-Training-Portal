@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { getTestResultsForUser, upsertTestResult } from "@/lib/db";
 import { testRegistry } from "@/data/tests";
 import { sendTestPassedWebhook } from "@/lib/discord/webhook";
+import { assignRolesToMember } from "@/lib/auth/discord";
 import { trainingProgression, extrasProgression } from "@/data/training";
 
 export async function GET() {
@@ -89,6 +90,21 @@ export async function POST(request: NextRequest) {
       ? session.roles.includes(tier.grantsRole)
       : false;
 
+    // Auto-assign this tier's Discord roles via the bot (only tiers that opt in
+    // via botRoles; SL/PL and extras stay manual). Failures are non-fatal and
+    // fall back to the "granted by admin" messaging + no ✅ reaction.
+    let rolesGranted = false;
+    if (tierCompleted && !isRefresh && tier?.botRoles?.length) {
+      const guildId = process.env.DISCORD_GUILD_ID;
+      if (guildId) {
+        try {
+          rolesGranted = await assignRolesToMember(session.userId, guildId, tier.botRoles);
+        } catch (e) {
+          console.error("Failed to auto-assign roles:", e);
+        }
+      }
+    }
+
     sendTestPassedWebhook({
       userId: session.userId,
       username: session.displayName,
@@ -97,6 +113,7 @@ export async function POST(request: NextRequest) {
       tierTitle: tier?.title ?? testId,
       requiresInGameConfirmation: tier?.requiresInGameConfirmation ?? false,
       isRefresh,
+      rolesGranted,
     }).catch((e) =>
       console.error("Failed to send webhook:", e),
     );

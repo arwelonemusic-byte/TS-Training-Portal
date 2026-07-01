@@ -17,6 +17,8 @@ export interface RoleTier {
   requiredRoles: string[];
   /** Discord role granted upon completing this tier (used to infer completion from existing roles) */
   grantsRole: string | null;
+  /** Discord role names the bot auto-assigns on tier completion. Undefined/empty = granted manually by an admin. */
+  botRoles?: string[];
   /** Whether this tier requires in-game confirmation before the next tier unlocks */
   requiresInGameConfirmation: boolean;
   manuals: Manual[];
@@ -30,6 +32,7 @@ export const trainingProgression: RoleTier[] = [
       "Вводный инструктаж для новоприбывших, желающих принять участие в играх на сервере Tactical Shift. Базовые правила безопасности и взаимодействия: дисциплина огня, работа в радиоэфире, обращение с гранатами и действия при ранении союзника.",
     requiredRoles: [],
     grantsRole: "Basic",
+    botRoles: ["Basic", "Famil"],
     requiresInGameConfirmation: false,
     manuals: [
       {
@@ -47,6 +50,7 @@ export const trainingProgression: RoleTier[] = [
       "Структура отряда, построения, радиообмен, контакт-репорты, правила боя, медпомощь и работа в двойке — всё, что нужно знать рядовому бойцу, чтобы эффективно действовать в составе фаертимы.",
     requiredRoles: ["Basic"],
     grantsRole: "Rifleman",
+    botRoles: ["Rifleman", "MachineGunner"],
     requiresInGameConfirmation: false,
     manuals: [
       {
@@ -64,6 +68,7 @@ export const trainingProgression: RoleTier[] = [
       "Обязанности старшего второй двойки, применение подствольного гранатомёта, нарезание пирога, хай-лоу и движение шевроном.",
     requiredRoles: ["Rifleman", "MachineGunner"],
     grantsRole: "Grenadier",
+    botRoles: ["FTO", "Grenadier"],
     requiresInGameConfirmation: false,
     manuals: [
       {
@@ -81,6 +86,7 @@ export const trainingProgression: RoleTier[] = [
       "Цикл контроля, коммуникация, оценка местности, удержание контроля, ведение боя, зоны безопасности, ACE доклад и использование бинокля.",
     requiredRoles: ["Grenadier"],
     grantsRole: "FTL",
+    botRoles: ["FTL"],
     requiresInGameConfirmation: true,
     manuals: [
       {
