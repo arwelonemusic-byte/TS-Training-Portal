@@ -194,5 +194,7 @@ export async function addBotReaction(
   if (!res.ok) {
     const text = await res.text();
     console.error(`Failed to add bot reaction: ${res.status} ${text}`);
+  } else {
+    console.log(`Added bot reaction ${emoji} to message ${messageId}`);
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { getTestResultsForUser, upsertTestResult } from "@/lib/db";
 import { testRegistry } from "@/data/tests";
@@ -105,18 +106,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    sendTestPassedWebhook({
-      userId: session.userId,
-      username: session.displayName,
-      testId,
-      tierCompleted,
-      tierTitle: tier?.title ?? testId,
-      requiresInGameConfirmation: tier?.requiresInGameConfirmation ?? false,
-      isRefresh,
-      rolesGranted,
-    }).catch((e) =>
-      console.error("Failed to send webhook:", e),
-    );
+    // Defer the webhook (message + ✅ reaction) via after() so it runs on the
+    // platform's waitUntil rather than as untracked work after the response —
+    // otherwise the serverless instance can freeze mid-flight and drop the
+    // trailing reaction call (message posts, but the ✅ never lands).
+    after(async () => {
+      try {
+        await sendTestPassedWebhook({
+          userId: session.userId,
+          username: session.displayName,
+          testId,
+          tierCompleted,
+          tierTitle: tier?.title ?? testId,
+          requiresInGameConfirmation: tier?.requiresInGameConfirmation ?? false,
+          isRefresh,
+          rolesGranted,
+        });
+      } catch (e) {
+        console.error("Failed to send webhook:", e);
+      }
+    });
   }
 
   return NextResponse.json({
