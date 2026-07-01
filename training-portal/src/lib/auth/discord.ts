@@ -99,11 +99,21 @@ export async function fetchGuildMemberByBot(
   return { roles: data.roles, nick: data.nick ?? data.user?.global_name ?? null };
 }
 
-export function mapRoleIdsToNames(roleIds: string[]): string[] {
+/** Parse DISCORD_ROLE_MAP, tolerating a leading BOM/whitespace so a stray
+ *  byte in the env var can never break auth (JSON.parse throws on a BOM). */
+function parseRoleMap(): Record<string, string> {
   const mapStr = process.env.DISCORD_ROLE_MAP;
-  if (!mapStr) return [];
+  if (!mapStr) return {};
+  try {
+    return JSON.parse(mapStr.replace(/^﻿/, "").trim());
+  } catch (err) {
+    console.error("Failed to parse DISCORD_ROLE_MAP:", err);
+    return {};
+  }
+}
 
-  const roleMap: Record<string, string> = JSON.parse(mapStr);
+export function mapRoleIdsToNames(roleIds: string[]): string[] {
+  const roleMap = parseRoleMap();
   return roleIds
     .map((id) => roleMap[id])
     .filter((name): name is string => !!name);
@@ -111,10 +121,7 @@ export function mapRoleIdsToNames(roleIds: string[]): string[] {
 
 /** Reverse lookup: resolve a role name to its Discord role ID via DISCORD_ROLE_MAP. */
 export function getRoleIdByName(name: string): string | null {
-  const mapStr = process.env.DISCORD_ROLE_MAP;
-  if (!mapStr) return null;
-
-  const roleMap: Record<string, string> = JSON.parse(mapStr);
+  const roleMap = parseRoleMap();
   for (const [id, roleName] of Object.entries(roleMap)) {
     if (roleName === name) return id;
   }
