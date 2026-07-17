@@ -1,8 +1,17 @@
-import { neon } from "@neondatabase/serverless";
+import postgres from "postgres";
+
+// Long-lived `next start` process: keep one pooled client for the lifetime
+// of the server instead of a per-request client.
+let db: ReturnType<typeof postgres> | null = null;
 
 function getDb() {
-  const sql = neon(process.env.POSTGRES_URL!);
-  return sql;
+  if (!db) {
+    if (!process.env.POSTGRES_URL) {
+      throw new Error("POSTGRES_URL is not set");
+    }
+    db = postgres(process.env.POSTGRES_URL);
+  }
+  return db;
 }
 
 export interface TestResultRow {

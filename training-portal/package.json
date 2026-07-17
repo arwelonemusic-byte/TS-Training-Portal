@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@neondatabase/serverless": "^1.0.2",
     "@noble/ed25519": "^3.0.1",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/react": "^19.2.14",
@@ -22,10 +21,12 @@
     "marked": "^17.0.4",
     "next": "^16.2.0",
     "postcss": "^8.5.8",
+    "postgres": "^3.4.9",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3"
   },
